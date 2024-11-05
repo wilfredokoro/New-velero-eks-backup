@@ -14,14 +14,14 @@ This document provides instructions for setting up Velero for backing up and res
 
 ### 1. Update Cluster to Current Version
 ```bash
-aws eks update-kubeconfig --name soar-eks-testing --region us-east-1
+aws eks update-kubeconfig --name demo --region us-east-1
 ```
 
 ### 2. Create IAM Policy
 Execute the following command to create the IAM Policy:
 ```bash
 aws iam create-policy \
-    --policy-name SwimlaneVeleroAccessPolicy \
+    --policy-name VeleroAccessPolicy \
     --policy-document file://velero_policy.json
 ```
 
@@ -29,7 +29,7 @@ aws iam create-policy \
 ```bash
 eksctl utils associate-iam-oidc-provider \
     --region us-east-1 \
-    --cluster soar-eks-testing \
+    --cluster demo \
     --approve
 ```
 
@@ -45,9 +45,9 @@ eksctl create iamserviceaccount \
     --cluster my-eks-cluster \
     --name velero-server \
     --namespace velero \
-    --role-name Swimlane-eks-velero-backup \
+    --role-name eks-velero-backup \
     --role-only \
-    --attach-policy-arn arn:aws:iam::195911796256:policy/SwimlaneVeleroAccessPolicy \
+    --attach-policy-arn arn:aws:iam::887998956998:policy/VeleroAccessPolicy \
     --approve
 ```
 
