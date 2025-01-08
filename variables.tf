@@ -25,4 +25,6 @@ variable "create_service_account" {
 variable "oidc_provider_uri" {
   description = "The OIDC provider URL."
   type        = string
+  default     = "oidc.eks.us-east-1.amazonaws.com/id/525B9394C7207F1CE4B26BFFA72334D5"
 }
+

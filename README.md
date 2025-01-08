@@ -1,93 +1,64 @@
-# New-velero-eks-backup
-
 
 # Velero Kubernetes Backup and Restore
 
-This document provides instructions for setting up Velero for backing up and restoring Kubernetes resources on an Amazon EKS cluster.
+This document provides instructions for setting up Velero for backing up and restoring Kubernetes resources on an Amazon EKS cluster using Terraform.
 
 ## Prerequisites
 - AWS CLI
-- eksctl
+- Terraform 
 - Helm
 
 ## Steps
 
 ### 1. Update Cluster to Current Version
 ```bash
-aws eks update-kubeconfig --name demo --region us-east-1
+aws eks update-kubeconfig --name <Cluster Name> --region us-east-1
 ```
 
-### 2. Create IAM Policy
-Execute the following command to create the IAM Policy:
+### 2. Obtain the OIDC Provider from AWS Environment
+Execute the following command to obtain the OIDC provider:
 ```bash
-aws iam create-policy \
-    --policy-name VeleroAccessPolicy \
-    --policy-document file://velero_policy.json
+aws eks describe-cluster --name <cluster-name> --query "cluster.identity.oidc.issuer" --output text
+
 ```
 
-### 3. Associate IAM OIDC Provider with EKS Cluster
+### 3. Add the  Provider to your code
 ```bash
-eksctl utils associate-iam-oidc-provider \
-    --region us-east-1 \
-    --cluster demo \
-    --approve
+variable "oidc_provider_uri" {
+  description = "The OIDC provider URL."
+  type        = string
+  default     = "oidc.eks.us-east-1.amazonaws.com/id/<providerID>"
+}
 ```
 
-### 4. Verify OIDC Provider
-Ensure the OIDC provider is associated:
-```bash
-aws iam list-open-id-connect-providers | grep soar-eks-testing
-```
-
-### 5. Create an IAM Service Account for Velero
-```bash
-eksctl create iamserviceaccount \
-    --cluster my-eks-cluster \
-    --name velero-server \
-    --namespace velero \
-    --role-name eks-velero-backup \
-    --role-only \
-    --attach-policy-arn arn:aws:iam::887998956998:policy/VeleroAccessPolicy \
-    --approve
-```
-
-### 6. Add VMware Tanzu Repository to Helm Repos
-```bash
-helm repo add vmware-tanzu https://vmware-tanzu.github.io/helm-charts
-```
-
-### 7. Update the Local Helm Repository
-```bash
-helm repo update
-```
-
-### 8. Create Namespace for the Install
+### 4. Create Namespace for the Install
 ```bash
 kubectl create ns velero
 ```
 
-### 9. Install Velero with Custom Values
-Add or update the necessary values in `values.yaml`, then run:
+### 5. 
 ```bash
-helm install vmware-tanzu/velero --namespace velero -f values.yaml
+export KUBE_CONFIG_PATH=~/.kube/config
+```
+### 5. Run terraform
+```bash
+terraform init
+terraform plan
+terraform apply
 ```
 
-### 10. Verify Installation
-```bash
-helm list -n velero
-```
 
-### 11. Check if Velero Pods are Running
+### 6. Check if Velero Pods are Running
 ```bash
 kubectl get pod -n velero
 ```
 
-### 12. Test Velero Backup
+### 7. Test Velero Backup
 ```bash
 velero backup create test-backup --include-namespaces velero
 ```
 
-### 13. Verify Backup
+### 8. Verify Backup
 ```bash
 velero backup get
 ```

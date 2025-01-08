@@ -27,7 +27,7 @@ resource "aws_iam_policy" "velero_iam_policy" {
         ]
         Effect = "Allow"
         Resource = [
-          "${aws_s3_bucket.this.arn}/*",
+          "${aws_s3_bucket.this.arn}", "${aws_s3_bucket.this.arn}/*"
         ]
       },
       {
@@ -36,7 +36,7 @@ resource "aws_iam_policy" "velero_iam_policy" {
         ]
         Effect = "Allow"
         Resource = [
-          "${aws_s3_bucket.this.arn}"
+          "${aws_s3_bucket.this.arn}", "${aws_s3_bucket.this.arn}/*"
         ]
       }
     ]

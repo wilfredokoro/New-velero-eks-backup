@@ -1,11 +1,12 @@
 
+
 resource "helm_release" "velero" {
-  depends_on = [aws_s3_bucket.this, aws_iam_role_policy_attachment.velero_attachment]
+  depends_on = [aws_s3_bucket.this, aws_iam_role_policy_attachment.velero_attachment, ]
   name       = "velero"
   namespace  = var.namespace
   repository = "https://vmware-tanzu.github.io/helm-charts"
   chart      = "velero"
-
+  timeout    = 600
   set {
     name  = "configuration.backupStorageLocation[0].provider"
     value = "aws"
@@ -62,7 +63,7 @@ resource "helm_release" "velero" {
 
   set {
     name  = "initContainers[0].image"
-    value = "velero/velero-plugin-for-aws:v1.3.0"
+    value = "velero/velero-plugin-for-aws:v1.7.1"
   }
 
   set {
@@ -75,4 +76,56 @@ resource "helm_release" "velero" {
     value = "plugins"
   }
 
+  set {
+    name  = "env[0].name"
+    value = "AWS_MAX_ATTEMPTS"
+  }
+
+  set {
+    name  = "env[0].value"
+    value = "10"
+  }
+
+  set {
+    name  = "env[0].name"
+    value = "AWS_MAX_RETRIES"
+  }
+
+  set {
+    name  = "env[0].value"
+    value = "10"
+  }
+
+  set {
+    name  = "env[0].name"
+    value = "AWS_REQUEST_TIMEOUT"
+  }
+
+  set {
+    name  = "env[0].value"
+    value = "60s"
+  }
+
+  set {
+    name  = "env[0].name"
+    value = "AWS_RETRY_MODE"
+  }
+
+  set {
+    name  = "env[0].value"
+    value = "adaptive"
+  }
+
+  set {
+    name  = "args[0]"
+    value = "server"
+  }
+
+  set {
+    name  = "args[0]"
+    value = "--item-operation-timeout=8h0m0s"
+  }
 }
+
+
+
